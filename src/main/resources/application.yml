@@ -22,11 +22,7 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
   datasource:
-    # Prod postgre instance
     platform: postgres
-    #    url: jdbc:postgresql://172.19.17.38:5432/db_pd_lender_journey
-    #    username: rbihdbuser
-    #    password: iftas@123
     driverClassName: org.postgresql.Driver
 
     #     Local postgre instance
