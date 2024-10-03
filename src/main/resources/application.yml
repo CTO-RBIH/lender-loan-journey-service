@@ -1,0 +1,75 @@
+management:
+  endpoint:
+    health:
+      show-details: ALWAYS
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus,health,info"
+spring:
+  main:
+    banner-mode: off
+  application:
+    name: lender-loan-journey-service
+    apiUser: admin
+    apiPassword: pass
+  jackson:
+    serialization:
+      fail-on-empty-beans: true
+    property-naming-strategy: SNAKE_CASE
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  datasource:
+    platform: postgres
+    driverClassName: org.postgresql.Driver
+
+    #     Local postgre instance
+    url: jdbc:postgresql://localhost:5432/lender_journey
+    username: postgres
+    password: password
+    jpa:
+      generate-ddl: true
+      show-sql: true
+      hibernate:
+        ddl-auto: update
+      properties:
+        hibernate:
+          dialect: org.hibernate.dialect.PostgreSQLDialect
+          format_sql: true
+
+
+app:
+  security:
+    dynamicPatterns: "/actuator/health, /actuator/prometheus, /tnsurveynumber , /tnsubdivisionnumber"
+  propertiesdump: false
+  privatekey: /etc/dsc/privkey.pem
+  secretkey: RBIHSECRETKEY22022023
+  sigpassword: rbih
+  publickeypath: /etc/dsc/pubkey.pem
+  keystore: /etc/dsc/signkeystore.jks
+  keystorepass: "#9m$J3&k@5"
+  keystorealias: securesign
+  accounting:
+    url: https://qa.nonprod.rbihub.io
+    user: admin
+    password: pass
+    creditname: credit
+    debitname: debit
+  narrowVersions:
+server:
+  port: 8084
+logging:
+  level:
+    root: INFO
+    org:
+      springframework:
+        web:
+          filter:
+            CommonsRequestLoggingFilter: DEBUG
+  file:
+    name: /var/log/lender-loan-journey-service-app.log
+  logstash:
+    url: 172.19.2.26:9600
+    enabled: true

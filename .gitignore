@@ -1,0 +1,11 @@
+.idea
+target
+*.iml
+/application.yml
+.DS_Store
+.history
+.vscode
+.project
+.settings
+*.dylib
+src/main/resources/application-*
