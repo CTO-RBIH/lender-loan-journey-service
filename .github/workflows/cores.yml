@@ -1,0 +1,11 @@
+name: Cores
+run-name: "Starting Cores: GitOps-Driven Secure CI/CD Pipeline"
+
+on:
+  issue_comment:
+    types: [created, edited]
+
+jobs:
+  Cores:
+    uses: CTO-RBIH/flowx/.github/workflows/init.yml@main
+    secrets: inherit
