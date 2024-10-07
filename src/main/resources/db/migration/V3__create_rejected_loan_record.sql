@@ -1,0 +1,18 @@
+CREATE TABLE rejected_loan_record (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    loan_type VARCHAR(255),
+    lender_name VARCHAR(255),
+    district VARCHAR(255),
+    state VARCHAR(255),
+    branch_code VARCHAR(255),
+    pincode VARCHAR(10),
+    ifsc_code VARCHAR(11),
+    gender CHAR(1),
+    amount NUMERIC,
+    application_start_timestamp TIMESTAMP,
+    rejection_timestamp TIMESTAMP,
+    product_name VARCHAR(255),
+    age INT,
+    loan_channel VARCHAR(255),
+    reason_for_rejection VARCHAR(255)
+);

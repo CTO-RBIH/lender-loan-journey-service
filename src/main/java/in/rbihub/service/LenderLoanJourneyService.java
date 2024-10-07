@@ -1,14 +1,11 @@
 package in.rbihub.service;
 
 import in.rbihub.common.error.ApiParamException;
-import in.rbihub.common.error.InvalidParamException;
 import in.rbihub.common.utils.ApiUtil;
 
 import in.rbihub.common.validation.ApiValidator;
-import in.rbihub.entity.LenderJourneyMetadataEntity;
 import in.rbihub.entity.LenderLoanRecordEntity;
 import in.rbihub.error.LenderLoanJourneyException;
-import in.rbihub.repository.LenderJourneyMetadataRepository;
 import in.rbihub.repository.LenderLoanRecordRepository;
 import in.rbihub.request.LenderLoanRecordApiRequest;
 import in.rbihub.utils.LenderLoanJourneyUtils;
@@ -32,8 +29,7 @@ public class LenderLoanJourneyService {
     @Autowired
     LenderLoanRecordRepository lenderLoanRecordRepository;
 
-    @Autowired
-    LenderJourneyMetadataRepository lenderJourneyMetadataRepository;
+
     @Autowired
     ApiValidator apiValidator;
     @Autowired
@@ -44,13 +40,6 @@ public class LenderLoanJourneyService {
         apiValidator.validate(apiRequest);
         LenderLoanRecordEntity loanRecord = apiRequest.getBody().getData();
 
-
-        // Retrieve metadata values
-        String lenderNameMetadataValues = lenderJourneyMetadataRepository.findMetadataValuesByMetadataKey("lender_name");
-        String productNameMetadataValues = lenderJourneyMetadataRepository.findMetadataValuesByMetadataKey("product_name");
-
-
-//        // Check lender and product presence
 //        validatePresence(loanRecord.getLenderName(), lenderNameMetadataValues, ApiParamException.ErrorCodes.E043);
 //        validatePresence(loanRecord.getProductName(), productNameMetadataValues, ApiParamException.ErrorCodes.E017);
 
