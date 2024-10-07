@@ -6,6 +6,7 @@ Lender-Loan-Journey is a service designed to provide detailed insights into the 
 ## Local endpoint
 
 ### 1. http://localhost:8084/lender-loan-record/1.0/en
+### 2. http://localhost:8084/api/rejected-loan-record/1.0/en
 
 
 
