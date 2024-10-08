@@ -1,50 +1,48 @@
 package in.rbihub.service;
 
+import in.rbihub.common.error.ApiParamException;
+import in.rbihub.common.utils.ApiUtil;
+import in.rbihub.common.validation.ApiValidator;
 import in.rbihub.entity.RejectedLoanRecordEntity;
 import in.rbihub.repository.RejectedLoanRecordRepository;
 import in.rbihub.request.RejectedLoanRecordApiRequest;
-import in.rbihub.request.RejectedLoanRecordBodyData;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.time.format.DateTimeFormatter;
-import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+@Slf4j
 @Service
 public class RejectedLoanRecordService {
 
     @Autowired
     private RejectedLoanRecordRepository rejectedLoanRecordRepository;
 
-    private static final Logger log = LoggerFactory.getLogger(RejectedLoanRecordService.class);
+    @Autowired
+    ApiValidator apiValidator;
 
-    // Method to convert string to Timestamp
-    public Timestamp convertToTimestamp(String dateString) {
-        if (dateString == null || dateString.isEmpty()) {
-            return null;  // Ensure null safety
-        }
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-        LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
-        return Timestamp.valueOf(localDateTime);
-    }
+    @Autowired
+    ApiUtil apiUtil;
 
     // Method to handle rejected loan record
-    public String handleRejectedLoanRecord(RejectedLoanRecordApiRequest apiRequest) {
+    public String handleRejectedLoanRecord(RejectedLoanRecordApiRequest apiRequest) throws ApiParamException {
 
-        log.info("API Request Meta: {}, Data: {}", apiRequest.getMeta(), apiRequest.getData());
+        log.info("API Request Body: {}", apiRequest.getBody());
 
-        // Extract data from the API request
-        RejectedLoanRecordBodyData data = apiRequest.getData().getData();
+        // Validate the request body and the request itself
+        apiValidator.validate(apiRequest.getBody());
+        apiValidator.validate(apiRequest);
+
+        // Extract data from the API request body
+        RejectedLoanRecordEntity data = apiRequest.getBody().getData();
 
         // Ensure mandatory fields are not null (avoid null pointer issues)
-        if (data == null || data.getLoanType() == null || data.getLenderName() == null) {
-            log.error("Invalid data: Missing loanType or lenderName.");
-            return "Invalid data: Missing mandatory fields.";
-        }
+        validatePresence(data.getLoanType(), "loanType", ApiParamException.ErrorCodes.E043);
+        validatePresence(data.getLenderName(), "lenderName", ApiParamException.ErrorCodes.E043);
 
         // Convert the API request to the entity
         RejectedLoanRecordEntity rejectedLoanRecordEntity = new RejectedLoanRecordEntity();
@@ -53,14 +51,14 @@ public class RejectedLoanRecordService {
         rejectedLoanRecordEntity.setDistrict(data.getDistrict());
         rejectedLoanRecordEntity.setState(data.getState());
         rejectedLoanRecordEntity.setBranchCode(data.getBranchCode());
-        rejectedLoanRecordEntity.setPincode(data.getPinCode());
+        rejectedLoanRecordEntity.setPincode(data.getPincode());
         rejectedLoanRecordEntity.setIfscCode(data.getIfscCode());
         rejectedLoanRecordEntity.setGender(data.getGender());
-        rejectedLoanRecordEntity.setAmount(data.getLoanDisbursedAmount());
+        rejectedLoanRecordEntity.setAmount(data.getAmount());
 
         // Convert and set timestamps
-        rejectedLoanRecordEntity.setApplicationStartTimestamp(convertToTimestamp(data.getApplicationStartTimestamp()));
-        rejectedLoanRecordEntity.setRejectionTimestamp(convertToTimestamp(data.getRejectionTimestamp()));
+        rejectedLoanRecordEntity.setApplicationStartTimestamp(data.getApplicationStartTimestamp());
+        rejectedLoanRecordEntity.setRejectionTimestamp(data.getRejectionTimestamp());
 
         rejectedLoanRecordEntity.setProductName(data.getProductName());
         rejectedLoanRecordEntity.setAge(data.getAge());
@@ -71,6 +69,13 @@ public class RejectedLoanRecordService {
         rejectedLoanRecordRepository.save(rejectedLoanRecordEntity);
 
         log.info("Rejected Loan Record saved successfully!");
-        return "Rejected Loan Record saved successfully!";
+        return ResponseEntity.status(HttpStatus.OK).body("OK").toString();
+    }
+
+    private void validatePresence(String value, String fieldName, ApiParamException.ErrorCodes errorCode) throws ApiParamException {
+        if (value == null || value.isEmpty()) {
+            log.error("Validation failed: Missing mandatory field {}", fieldName);
+            throw new ApiParamException(errorCode);
+        }
     }
 }

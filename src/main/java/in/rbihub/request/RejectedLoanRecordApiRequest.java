@@ -1,21 +1,16 @@
 package in.rbihub.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import in.rbihub.common.request.ApiRequest;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
-public class RejectedLoanRecordApiRequest {
+@Slf4j
+@EqualsAndHashCode(callSuper = false)
+public class RejectedLoanRecordApiRequest extends ApiRequest {
 
-    private Meta meta;
-    private RejectedLoanRecordBody data;
-    private String hmac;
-
-    @Data
-    public static class Meta {
-        private String txncode;
-        private String ver;
-        private String ts;
-    }
-
+    RejectedLoanRecordBody body;
 
 }
