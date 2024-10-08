@@ -1,11 +1,10 @@
 package in.rbihub.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+
 
 import java.sql.Timestamp;
 import java.util.UUID;
@@ -15,33 +14,101 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = false)
 @Table(name = "lender_loan_record")
 public class LenderLoanRecordEntity {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private UUID id;  // Loan ID
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID loan_id;  // Loan ID, UUID format
 
-    private String lenderName;  // Bank name
-    private String loanType;  // Loan type
+    @NotBlank(message = "Lender Name is mandatory")
+    private String lenderName;  // Bank name (Mandatory)
 
-    private Double loanDisbursedAmount;  // Disbursed amount as a number -change to sanction
+    @NotNull(message = "Loan Type is mandatory")
+    @Min(value = 1, message = "Loan Type must be between 1 and 10")
+    @Max(value = 10, message = "Loan Type must be between 1 and 10")
+    private Integer loanType;  // Loan type (Mandatory, numeric format between 1-10)
 
-    // Newly added fields
-    private String district;  // District
-    private String state;  // State
-    private String branchCode;  // Branch code
-    private String pincode;  // Pincode
-    private String ifscCode;  // IFSC code
-    private String gender;  // Gender (M/F/T)
+    @NotNull(message = "Loan Disbursed Amount is mandatory")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Loan Disbursed Amount must be greater than 0")
+    private Double sanctionedAmount;  // Loan Disbursed Amount (Mandatory)
 
-    private Timestamp applicationStartTimestamp;  // Start Timestamp
-    private Timestamp loanSanctionTimestamp;  // Disbursed Timestamp
-    private Timestamp loanDisbursedTimestamp;  // Disbursed Timestamp
+    @NotBlank(message = "District is mandatory")
+    private String district;  // District (Mandatory)
 
-    @Column(nullable = true)  // Optional field
-    private String productName;  // Product name (optional)
+    @NotBlank(message = "State is mandatory")
+    private String state;  // State (Mandatory)
 
-    private Integer age;  // Age
-    private String loanChannel;  // Loan Channel
+    @NotBlank(message = "Branch Code is mandatory")
+    private String branchCode;  // Branch Code (Mandatory)
+
+    @Pattern(regexp = "\\d{6}", message = "Pincode must be 6 digits")
+    private String pincode;  // Pincode (Mandatory, 6 digits)
+
+    @Pattern(regexp = "[A-Z]{4}0[A-Z0-9]{6}", message = "IFSC code format is invalid")
+    private String ifscCode;  // IFSC code (Mandatory)
+
+    @NotNull(message = "Gender is mandatory")
+    @Pattern(regexp = "M|F|T", message = "Gender must be M (Male), F (Female), or T (Transgender)")
+    private String gender;  // Gender (M/F/T) (Mandatory)
+
+    @NotNull(message = "Application Start Timestamp is mandatory")
+    private Timestamp applicationStartTimestamp;  // Application Start Timestamp (Mandatory)
+
+    @NotNull(message = "Loan Sanction Timestamp is mandatory")
+    private Timestamp loanSanctionTimestamp;  // Loan Sanction Timestamp (Mandatory)
+
+    @NotNull(message = "Loan Disbursed Timestamp is mandatory")
+    private Timestamp loanDisbursedTimestamp;  // Loan Disbursed Timestamp (Mandatory)
+
+    @Column(nullable = true)
+    private String loanProductName;  // Product Name (Optional)
+
+    @NotNull(message = "Age is mandatory")
+    @Min(value = 18, message = "Age must be greater than or equal to 18")
+    @Max(value = 100, message = "Age must be less than or equal to 100")
+    private Integer age;  // Age (Mandatory)
+
+    @NotBlank(message = "Loan Channel is mandatory")
+    private String loanChannel;  // Loan Channel (Mandatory)
+
+    @NotBlank(message = "Marital Status is mandatory")
+    @Pattern(regexp = "S|M|D|W", message = "Marital Status must be S (Single), M (Married), D (Divorced), or W (Widowed)")
+    private String maritalStatus;  // Marital Status (Mandatory)
+
+    @NotNull(message = "Annual Income is mandatory")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Annual Income must be greater than 0")
+    private Double annualIncome;  // Annual Income (Mandatory)
+
+    @NotBlank(message = "Device Type is mandatory")
+    private String deviceType;  // Device Type (Mandatory)
+
+    @NotNull(message = "Profession is mandatory")
+    @Pattern(regexp = "S|E|I|N", message = "Profession must be one of the following: S (Self-employed), E (Employed), I (Unemployed), N (Not specified)")
+    private String professionalBackground;  // Profession (Mandatory)
+
+
+    @Min(value = 1, message = "Educational Background must be greater than or equal to 1")
+    @Max(value = 6, message = "Educational Background must be less than or equal to 6")
+    private int educationalBackground; // Educational Background (Range validation)
+
+    @Pattern(regexp = "\\d{2}|0000", message = "State Code must be 2 digits or '0000'")
+    private String stateCode;  // State Code (Mandatory)
+
+    @Pattern(regexp = "\\d{3}|0000", message = "District Code must be 3 digits or '0000'")
+    private String districtCode;  // District Code (Mandatory)
+
+    @Pattern(regexp = "\\d{4}|0000", message = "Sub District Code must be 4 digits or '0000'")
+    private String subDistrictCode;  // Sub District Code (Mandatory)
+
+    @Pattern(regexp = "\\d{6}|0000", message = "Village Code must be 6 digits or '0000'")
+    private String villageCode;  // Village Code (Mandatory)
 
     @Column(name = "created_at", updatable = false)
-    private Timestamp createdAt;  // Created at (autogenerated timestamp)
+    private Timestamp createdAt;  // Created At (Autogenerated)
+
+    @Column(name = "active_status", nullable = false)
+    private String activeStatus = "Y";  // Active status, default is "Y"
+
+    @NotNull(message = "Services Used is mandatory")
+    @Column(name = "services_used", nullable = false)
+    private String[] servicesUsed;  // Array of strings for services used (Mandatory)
 }

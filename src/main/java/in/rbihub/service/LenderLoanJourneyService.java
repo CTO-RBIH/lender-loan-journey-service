@@ -36,6 +36,9 @@ public class LenderLoanJourneyService {
     ApiUtil apiUtil;
 
     public String handleLenderLoanRecord(LenderLoanRecordApiRequest apiRequest) throws LenderLoanJourneyException {
+
+        log.info("Processing lender loan record: {}", apiRequest);
+
         apiValidator.validate(apiRequest.getBody());
         apiValidator.validate(apiRequest);
         LenderLoanRecordEntity loanRecord = apiRequest.getBody().getData();
