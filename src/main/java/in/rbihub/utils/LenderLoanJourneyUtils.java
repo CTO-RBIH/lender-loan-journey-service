@@ -23,7 +23,7 @@ public class LenderLoanJourneyUtils {
 
 	@Autowired
 	ApiUtil apiUtil;
-	
+
 	@Value("${app.narrowVersions}")
 	List<String> narrowVersions;
 

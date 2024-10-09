@@ -12,12 +12,17 @@ import java.util.UUID;
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = false)
+@IdClass(LenderLoanRecordId.class)
 @Table(name = "lender_loan_record")
 public class LenderLoanRecordEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID loan_id;  // Loan ID, UUID format
+    @Column(name = "loan_id", nullable = false)
+    private String loanId;
+
+    @Id
+    @Column(name = "client_id", nullable = false)
+    private String clientId;
 
     @NotBlank(message = "Lender Name is mandatory")
     private String lenderName;  // Bank name (Mandatory)
@@ -111,4 +116,11 @@ public class LenderLoanRecordEntity {
     @NotNull(message = "Services Used is mandatory")
     @Column(name = "services_used", nullable = false)
     private String[] servicesUsed;  // Array of strings for services used (Mandatory)
+
+    @Column(name = "updated_at", nullable = false)
+    @org.hibernate.annotations.UpdateTimestamp
+    private Timestamp updatedAt;
+
+    @Column(name = "reason_for_withdrawal", nullable = false)
+    private String reasonForWithdrawal = "0000";
 }
