@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
@@ -16,11 +17,16 @@ import java.sql.Timestamp;
 @LoanValidation // Apply the custom annotation here
 public class LenderLoanRecordEntity {
 
+    // You can add setters here if needed
+    // Use this for setting original loanId if needed
+    @Setter
     @Id
     @Column(name = "loan_id", nullable = false)
     @NotBlank(message = "{loan_id.invalid}") // Error code for blank loan ID
     private String loanId;
 
+    // Use this for setting original clientId if needed
+    @Setter
     @Id
     @Column(name = "client_id", nullable = false)
     @NotBlank(message = "{client_id.invalid}") // Error code for blank client ID
@@ -50,6 +56,10 @@ public class LenderLoanRecordEntity {
 
     @Pattern(regexp = "[A-Z]{4}0[A-Z0-9]{6}", message = "{ifsc_code.invalid}") // Error code for IFSC code format
     private String ifscCode;  // IFSC code (Mandatory)
+
+    @NotBlank(message = "{branch_code.invalid}") // Error code for blank branch code
+    @Column(name = "branch_code", nullable = false) // Ensure this is nullable = false
+    private String branchCode;  // Branch Code (Mandatory)
 
     @NotNull(message = "{gender.invalid}") // Error code for null gender
     @Pattern(regexp = "M|F|T", message = "{gender.invalid}") // Error code for gender validation
@@ -123,4 +133,10 @@ public class LenderLoanRecordEntity {
     @Column(name = "reason_for_withdrawal", nullable = false)
     @NotNull(message = "{reason_for_withdrawal.invalid}") // Error code for reason for withdrawal
     private String reasonForWithdrawal = "0000"; // Default value
+
+    // Ensure you have a way to set hashed IDs in the loanRecord entity
+    public void setHashedId(String loanId, String clientId) {
+        this.loanId = loanId;  // Set the hashed loanId
+        this.clientId = clientId;  // Set the hashed clientId
+    }
 }

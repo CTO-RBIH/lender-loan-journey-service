@@ -33,6 +33,16 @@ CREATE TABLE lender_loan_record (
     PRIMARY KEY (client_id, loan_id)
 );
 
+CREATE OR REPLACE FUNCTION hash_sha256(input TEXT) RETURNS TEXT AS $$
+DECLARE
+    hashed_output TEXT;
+BEGIN
+    SELECT encode(digest(input, 'sha256'), 'hex') INTO hashed_output;
+    RETURN hashed_output;
+END;
+$$ LANGUAGE plpgsql;
+
+
 -- Insert statement rearranged to match the new column order
 INSERT INTO lender_loan_record (
     loan_id, client_id, lender_name, loan_type, loan_product_name, sanctioned_amount, loan_channel, district, state, branch_code,
@@ -41,36 +51,161 @@ INSERT INTO lender_loan_record (
     loan_sanction_timestamp, device_type, active_status, services_used,
     reason_for_withdrawal
 )
-VALUES (
-    'L-101',
-    'H-82730',
-    'HDFC',
-    1,
-    'Agriculture Loan',
-    250000,
-    '1',
-    'Mumbai',
-    'Maharashtra',
-    'BR001',
-    '400001',
-    'HDFC0001234',
+VALUES
+(
+    hash_sha256('L-102'),          -- Hash the loan_id
+    hash_sha256('H-82731'),        -- Hash the client_id
+    'ICICI Bank',
+    2,
+    'Home Loan',
+    500000,
+    '2',
+    'Bangalore',
+    'Karnataka',
+    'BR002',
+    '560001',
+    'ICIC0001234',
     '27',
-    '4001',
+    '4002',
     '0000',
     '0000',
     '0000',
+    'F',
+    28,
     'M',
-    35,
-    'M',
-    500000,  -- Make sure this value corresponds to the annual_income
-    4,
+    600000,
+    3,
     'E',
-    '2024-06-20 09:00:00',
-    '2024-06-20 12:00:00',
+    '2024-07-15 10:00:00',
+    '2024-07-15 14:00:00',
+    'D',
+    'Y',
+    ARRAY['Home Application', 'Home Sanction'],
+    'GOOD CREDIT SCORE'
+),
+(
+    hash_sha256('L-103'),
+    hash_sha256('H-82732'),
+    'Axis Bank',
+    3,
+    'Car Loan',
+    300000,
+    '1',
+    'Hyderabad',
+    'Telangana',
+    'BR003',
+    '500001',
+    'AXIS0001234',
+    '29',
+    '4003',
+    '0000',
+    '0000',
+    '0000',
+    'M',
+    32,
+    'S',
+    450000,
+    2,
+    'S',
+    '2024-08-20 11:30:00',
+    '2024-08-20 15:00:00',
     'M',
     'Y',
-    ARRAY['Loan Application', 'Loan Sanction', 'Loan Disbursement'],  -- Use ARRAY constructor for array type
-    'LOW CREDIT SCORE'
+    ARRAY['Car Application', 'Car Sanction', 'Car Disbursement'],
+    'AVERAGE CREDIT SCORE'
+),
+(
+    hash_sha256('L-104'),
+    hash_sha256('H-82733'),
+    'SBI',
+    1,
+    'Education Loan',
+    150000,
+    '3',
+    'Chennai',
+    'Tamil Nadu',
+    'BR004',
+    '600001',
+    'SBI0001234',
+    '30',
+    '4004',
+    '0000',
+    '0000',
+    '0000',
+    'F',
+    20,
+    'W',
+    300000,
+    1,
+    'E',
+    '2024-05-10 09:00:00',
+    '2024-05-10 13:00:00',
+    'D',
+    'Y',
+    ARRAY['Education Application', 'Education Sanction'],
+    'HIGH STUDENT DEBT'
+),
+(
+    hash_sha256('L-105'),
+    hash_sha256('H-82734'),
+    'HDFC',
+    2,
+    'Personal Loan',
+    200000,
+    '2',
+    'Ahmedabad',
+    'Gujarat',
+    'BR005',
+    '380001',
+    'HDFC0001234',
+    '31',
+    '4005',
+    '0000',
+    '0000',
+    '0000',
+    'M',
+    40,
+    'M',
+    800000,
+    5,
+    'I',
+    '2024-09-25 10:00:00',
+    '2024-09-25 14:00:00',
+    'M',
+    'Y',
+    ARRAY['Personal Application', 'Personal Sanction', 'Personal Disbursement'],
+    'EXCELLENT CREDIT SCORE'
+),
+(
+    hash_sha256('L-106'),
+    hash_sha256('H-82735'),
+    'PNB',
+    3,
+    'Business Loan',
+    1000000,
+    '3',
+    'Kolkata',
+    'West Bengal',
+    'BR006',
+    '700001',
+    'PNB0001234',
+    '32',
+    '4006',
+    '0000',
+    '0000',
+    '0000',
+    'F',
+    45,
+    'M',
+    1200000,
+    6,
+    'S',
+    '2024-06-30 08:00:00',
+    '2024-06-30 12:00:00',
+    'D',
+    'Y',
+    ARRAY['Business Application', 'Business Sanction'],
+    'GROWING BUSINESS'
 );
 
 -- Create a function to update the 'updated_at' column to the current timestamp
@@ -87,3 +222,4 @@ CREATE TRIGGER update_lender_loan_record_modtime
 BEFORE UPDATE ON lender_loan_record
 FOR EACH ROW
 EXECUTE FUNCTION update_modified_column();
+

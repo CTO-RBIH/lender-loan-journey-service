@@ -4,6 +4,7 @@ import in.rbihub.common.error.ApiParamException;
 import in.rbihub.common.utils.ApiUtil;
 import in.rbihub.common.validation.ApiValidator;
 import in.rbihub.entity.LenderLoanRecordEntity;
+import in.rbihub.entity.LenderLoanRecordId;
 import in.rbihub.error.LenderLoanJourneyException;
 import in.rbihub.repository.LenderLoanRecordRepository;
 import in.rbihub.request.LenderLoanRecordApiRequest;
@@ -42,6 +43,12 @@ public class LenderLoanJourneyService {
 
         // Retrieve the loan record from the request
         LenderLoanRecordEntity loanRecord = apiRequest.getBody().getData();
+
+        // Create a new LenderLoanRecordId instance with original values
+        LenderLoanRecordId recordId = new LenderLoanRecordId(loanRecord.getLoanId(), loanRecord.getClientId());
+
+        // Set the hashed IDs in the loanRecord entity
+        loanRecord.setHashedId(recordId.getLoanId(), recordId.getClientId());
 
         // Save the loan record to the repository
         lenderLoanRecordRepository.save(loanRecord);

@@ -2,16 +2,20 @@ package in.rbihub.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import lombok.Getter;
+
 import java.io.Serializable;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
+@Getter
 @Embeddable
 public class LenderLoanRecordId implements Serializable {
-    // Column representing 'loan_id' in the database
+
     @Column(name = "loan_id")
     private String loanId;
 
-    // Column representing 'client_id' in the database
     @Column(name = "client_id")
     private String clientId;
 
@@ -21,8 +25,28 @@ public class LenderLoanRecordId implements Serializable {
 
     // Parameterized constructor for convenience
     public LenderLoanRecordId(String loanId, String clientId) {
-        this.loanId = loanId;
-        this.clientId = clientId;
+        this.loanId = hash(loanId);  // Hash the loanId
+        this.clientId = hash(clientId);  // Hash the clientId
+    }
+
+    // Hashing method using SHA-256
+    private String hash(String input) {
+        if (input == null) {
+            throw new IllegalArgumentException("Input to hash cannot be null");
+        }
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashedBytes = digest.digest(input.getBytes());
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hashedBytes) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error hashing input with SHA-256", e);
+        }
     }
 
     // Override equals method for proper comparison
