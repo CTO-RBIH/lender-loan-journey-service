@@ -12,5 +12,6 @@ import org.apache.commons.lang3.builder.ToStringExclude;
 @Slf4j
 @EqualsAndHashCode(callSuper = false)
 public class LenderLoanRecordApiRequest extends ApiRequest {
+    @Valid
     LenderLoanRecordBody body;
 }

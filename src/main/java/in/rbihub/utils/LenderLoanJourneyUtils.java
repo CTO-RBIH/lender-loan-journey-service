@@ -33,6 +33,7 @@ public class LenderLoanJourneyUtils {
 		if (Objects.nonNull(body.getMeta())) {
 			apiRequest.setTxncode(body.getMeta().txncode());
 			apiRequest.setTimestamp(body.getMeta().ts());
+			apiRequest.setVersion(body.getMeta().ver());
 			MDC.put(TXNCODE, body.getMeta().txncode());
 			MDC.put(TIMESTAMP, body.getMeta().ts());
 		}

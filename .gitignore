@@ -9,3 +9,4 @@ target
 .settings
 *.dylib
 src/main/resources/application-*
+select * from lender_loan_record;.pgsql

@@ -2,7 +2,6 @@ package in.rbihub.service;
 
 import in.rbihub.common.error.ApiParamException;
 import in.rbihub.common.utils.ApiUtil;
-
 import in.rbihub.common.validation.ApiValidator;
 import in.rbihub.entity.LenderLoanRecordEntity;
 import in.rbihub.error.LenderLoanJourneyException;
@@ -10,28 +9,26 @@ import in.rbihub.repository.LenderLoanRecordRepository;
 import in.rbihub.request.LenderLoanRecordApiRequest;
 import in.rbihub.utils.LenderLoanJourneyUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
 
-
 @Slf4j
 @Service
 public class LenderLoanJourneyService {
 
-
     @Autowired
     LenderLoanJourneyUtils lenderLoanJourneyUtils;
+
     @Autowired
     LenderLoanRecordRepository lenderLoanRecordRepository;
 
-
     @Autowired
     ApiValidator apiValidator;
+
     @Autowired
     ApiUtil apiUtil;
 
@@ -39,16 +36,22 @@ public class LenderLoanJourneyService {
 
         log.info("Processing lender loan record: {}", apiRequest);
 
+        // Validate the request body and the request itself
         apiValidator.validate(apiRequest.getBody());
         apiValidator.validate(apiRequest);
+
+        // Retrieve the loan record from the request
         LenderLoanRecordEntity loanRecord = apiRequest.getBody().getData();
 
-//        validatePresence(loanRecord.getLenderName(), lenderNameMetadataValues, ApiParamException.ErrorCodes.E043);
-//        validatePresence(loanRecord.getProductName(), productNameMetadataValues, ApiParamException.ErrorCodes.E017);
-
+        // Save the loan record to the repository
         lenderLoanRecordRepository.save(loanRecord);
 
-        return ResponseEntity.status(HttpStatus.OK).body("OK").toString();
+        // Create a valid JSON object to pass as data
+        JSONObject jsonData = new JSONObject();
+        jsonData.put("message", "Loan record processed successfully.");
+
+        // Return the default success response
+        return apiUtil.convertToPlatformResponse(apiRequest, jsonData);
     }
 
     private void validatePresence(String name, String metadataValues, ApiParamException.ErrorCodes errorCode) throws LenderLoanJourneyException {
@@ -56,6 +59,5 @@ public class LenderLoanJourneyService {
         if (!names.contains(name)) {
             throw new LenderLoanJourneyException(errorCode);
         }
-
     }
 }
