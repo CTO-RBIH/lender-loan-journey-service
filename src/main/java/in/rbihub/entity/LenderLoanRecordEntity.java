@@ -1,119 +1,118 @@
 package in.rbihub.entity;
 
+import in.rbihub.validation.LoanValidation; // Import the custom annotation
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-
 import java.sql.Timestamp;
-import java.util.UUID;
 
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = false)
 @IdClass(LenderLoanRecordId.class)
 @Table(name = "lender_loan_record")
+@LoanValidation // Apply the custom annotation here
 public class LenderLoanRecordEntity {
 
     @Id
     @Column(name = "loan_id", nullable = false)
+    @NotBlank(message = "{loan_id.invalid}") // Error code for blank loan ID
     private String loanId;
 
     @Id
     @Column(name = "client_id", nullable = false)
+    @NotBlank(message = "{client_id.invalid}") // Error code for blank client ID
     private String clientId;
 
-    @NotBlank(message = "Lender Name is mandatory")
+    @NotBlank(message = "{lender_name.invalid}") // Error code for blank lender name
     private String lenderName;  // Bank name (Mandatory)
 
-    @NotNull(message = "Loan Type is mandatory")
-    @Min(value = 1, message = "Loan Type must be between 1 and 10")
-    @Max(value = 10, message = "Loan Type must be between 1 and 10")
+    @NotNull(message = "{loan_type.invalid}") // Error code for null loan type
+    @Min(value = 1, message = "{loan_type.invalid}") // Error code for minimum loan type
+    @Max(value = 10, message = "{loan_type.invalid}") // Error code for maximum loan type
     private Integer loanType;  // Loan type (Mandatory, numeric format between 1-10)
 
-    @NotNull(message = "Loan Disbursed Amount is mandatory")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Loan Disbursed Amount must be greater than 0")
+    @NotNull(message = "{sanctioned_amount.invalid}") // Error code for null sanctioned amount
+    @DecimalMin(value = "0.0", inclusive = false, message = "{sanctioned_amount.invalid}") // Error code for negative or zero amount
     private Double sanctionedAmount;  // Loan Disbursed Amount (Mandatory)
 
-    @NotBlank(message = "District is mandatory")
+    @NotNull(message = "{district.invalid}") // Error code for blank district, state, and pincode
+    @Pattern(regexp = ".+", message = "{district.invalid}") // Ensure values for district, state, and pincode
     private String district;  // District (Mandatory)
 
-    @NotBlank(message = "State is mandatory")
+    @NotBlank(message = "{state.invalid}") // Error code for blank state
     private String state;  // State (Mandatory)
 
-    @NotBlank(message = "Branch Code is mandatory")
-    private String branchCode;  // Branch Code (Mandatory)
-
-    @Pattern(regexp = "\\d{6}", message = "Pincode must be 6 digits")
+    @Pattern(regexp = "\\d{6}", message = "{pincode.invalid}") // Error code for pincode format
     private String pincode;  // Pincode (Mandatory, 6 digits)
 
-    @Pattern(regexp = "[A-Z]{4}0[A-Z0-9]{6}", message = "IFSC code format is invalid")
+    @Pattern(regexp = "[A-Z]{4}0[A-Z0-9]{6}", message = "{ifsc_code.invalid}") // Error code for IFSC code format
     private String ifscCode;  // IFSC code (Mandatory)
 
-    @NotNull(message = "Gender is mandatory")
-    @Pattern(regexp = "M|F|T", message = "Gender must be M (Male), F (Female), or T (Transgender)")
+    @NotNull(message = "{gender.invalid}") // Error code for null gender
+    @Pattern(regexp = "M|F|T", message = "{gender.invalid}") // Error code for gender validation
     private String gender;  // Gender (M/F/T) (Mandatory)
 
-    @NotNull(message = "Application Start Timestamp is mandatory")
+    @NotNull(message = "{application_start_timestamp.invalid}") // Error code for null application start timestamp
     private Timestamp applicationStartTimestamp;  // Application Start Timestamp (Mandatory)
 
-    @NotNull(message = "Loan Sanction Timestamp is mandatory")
+    @NotNull(message = "{loan_sanction_timestamp.invalid}") // Error code for null loan sanction timestamp
     private Timestamp loanSanctionTimestamp;  // Loan Sanction Timestamp (Mandatory)
-
-    @NotNull(message = "Loan Disbursed Timestamp is mandatory")
-    private Timestamp loanDisbursedTimestamp;  // Loan Disbursed Timestamp (Mandatory)
 
     @Column(nullable = true)
     private String loanProductName;  // Product Name (Optional)
 
-    @NotNull(message = "Age is mandatory")
-    @Min(value = 18, message = "Age must be greater than or equal to 18")
-    @Max(value = 100, message = "Age must be less than or equal to 100")
+    @NotNull(message = "{age.invalid}") // Error code for null age
+    @Min(value = 18, message = "{age.invalid}") // Error code for minimum age
+    @Max(value = 100, message = "{age.invalid}") // Error code for maximum age
     private Integer age;  // Age (Mandatory)
 
-    @NotBlank(message = "Loan Channel is mandatory")
+    @NotBlank(message = "{loan_channel.invalid}") // Error code for blank loan channel
     private String loanChannel;  // Loan Channel (Mandatory)
 
-    @NotBlank(message = "Marital Status is mandatory")
-    @Pattern(regexp = "S|M|D|W", message = "Marital Status must be S (Single), M (Married), D (Divorced), or W (Widowed)")
+    @NotBlank(message = "{marital_status.invalid}") // Error code for blank marital status
+    @Pattern(regexp = "S|M|D|W", message = "{marital_status.invalid}") // Error code for marital status validation
     private String maritalStatus;  // Marital Status (Mandatory)
 
-    @NotNull(message = "Annual Income is mandatory")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Annual Income must be greater than 0")
+    @NotNull(message = "{annual_income.invalid}") // Error code for null annual income
+    @DecimalMin(value = "0.0", inclusive = false, message = "{annual_income.invalid}") // Error code for negative or zero income
     private Double annualIncome;  // Annual Income (Mandatory)
 
-    @NotBlank(message = "Device Type is mandatory")
+    @NotBlank(message = "{device_type.invalid}") // Error code for blank device type
+    @Pattern(regexp = "M|D", message = "{device_type.invalid}") // Error code for device type validation
     private String deviceType;  // Device Type (Mandatory)
 
-    @NotNull(message = "Profession is mandatory")
-    @Pattern(regexp = "S|E|I|N", message = "Profession must be one of the following: S (Self-employed), E (Employed), I (Unemployed), N (Not specified)")
+    @NotNull(message = "{professional_background.invalid}") // Error code for null profession
+    @Pattern(regexp = "S|E|I|N", message = "{professional_background.invalid}") // Error code for profession validation
     private String professionalBackground;  // Profession (Mandatory)
 
-
-    @Min(value = 1, message = "Educational Background must be greater than or equal to 1")
-    @Max(value = 6, message = "Educational Background must be less than or equal to 6")
+    @Min(value = 1, message = "{educational_background.invalid}") // Error code for minimum educational background
+    @Max(value = 6, message = "{educational_background.invalid}") // Error code for maximum educational background
     private int educationalBackground; // Educational Background (Range validation)
 
-    @Pattern(regexp = "\\d{2}|0000", message = "State Code must be 2 digits or '0000'")
+    @NotNull(message = "{state_code.invalid}") // Error code for state, district, sub district, and village codes
+    @Pattern(regexp = "\\d{2}|0000", message = "{state_code.invalid}") // Ensure valid state code
     private String stateCode;  // State Code (Mandatory)
 
-    @Pattern(regexp = "\\d{3}|0000", message = "District Code must be 3 digits or '0000'")
+    @Pattern(regexp = "\\d{3}|0000", message = "{district_code.invalid}") // Ensure valid district code
     private String districtCode;  // District Code (Mandatory)
 
-    @Pattern(regexp = "\\d{4}|0000", message = "Sub District Code must be 4 digits or '0000'")
+    @Pattern(regexp = "\\d{4}|0000", message = "{sub_district_code.invalid}") // Ensure valid sub district code
     private String subDistrictCode;  // Sub District Code (Mandatory)
 
-    @Pattern(regexp = "\\d{6}|0000", message = "Village Code must be 6 digits or '0000'")
+    @Pattern(regexp = "\\d{6}|0000", message = "{village_code.invalid}") // Ensure valid village code
     private String villageCode;  // Village Code (Mandatory)
 
     @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;  // Created At (Autogenerated)
 
     @Column(name = "active_status", nullable = false)
-    private String activeStatus = "Y";  // Active status, default is "Y"
+    @Pattern(regexp = "Y|N", message = "{active_status.invalid}") // Error code for active status validation
+    private String activeStatus = "Y";
 
-    @NotNull(message = "Services Used is mandatory")
+    @NotNull(message = "{services_used.invalid}") // Error code for null services used
     @Column(name = "services_used", nullable = false)
     private String[] servicesUsed;  // Array of strings for services used (Mandatory)
 
@@ -122,5 +121,6 @@ public class LenderLoanRecordEntity {
     private Timestamp updatedAt;
 
     @Column(name = "reason_for_withdrawal", nullable = false)
-    private String reasonForWithdrawal = "0000";
+    @NotNull(message = "{reason_for_withdrawal.invalid}") // Error code for reason for withdrawal
+    private String reasonForWithdrawal = "0000"; // Default value
 }

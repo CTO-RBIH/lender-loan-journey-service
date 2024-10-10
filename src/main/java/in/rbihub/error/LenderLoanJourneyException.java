@@ -38,6 +38,28 @@ public class LenderLoanJourneyException extends ApiParamException implements Pla
 	}
 
 	public enum CustomErrorCodes implements PlatfromErrorCode {
-		E506,E515, E975
+		E201,
+		E202,
+		E203,
+		E204,
+		E205,
+		E206,
+		E207,
+		E208,
+		E209,
+		E210,
+		E211,
+		E212,
+		E213,
+		E214,
+		E215,
+		E216,
+		E217,
+		E218,
+		E219,
+		E220,
+		E221,
+		E222,
+		E223
 	}
 }

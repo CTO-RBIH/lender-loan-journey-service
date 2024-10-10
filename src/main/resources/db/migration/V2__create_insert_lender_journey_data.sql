@@ -24,31 +24,53 @@ CREATE TABLE lender_loan_record (
     professional_background CHAR(1) NOT NULL CHECK (professional_background IN ('S', 'E', 'I', 'N')),
     application_start_timestamp TIMESTAMP NOT NULL,
     loan_sanction_timestamp TIMESTAMP NOT NULL,
-    loan_disbursed_timestamp TIMESTAMP,
     device_type CHAR(1) NOT NULL CHECK (device_type IN ('M', 'D')),
     active_status CHAR(1) NOT NULL DEFAULT 'Y',
-    services_used TEXT[],
+    services_used TEXT[],  -- Ensure this is an array type
     reason_for_withdrawal VARCHAR(255) NOT NULL DEFAULT '0000',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PRIMARY KEY (client_id, loan_id)
 );
 
-
-
 -- Insert statement rearranged to match the new column order
 INSERT INTO lender_loan_record (
     loan_id, client_id, lender_name, loan_type, loan_product_name, sanctioned_amount, loan_channel, district, state, branch_code,
     pincode, ifsc_code, state_code, district_code, sub_district_code, village_code, lgd_code, gender, age,
     marital_status, annual_income, educational_background, professional_background, application_start_timestamp,
-    loan_sanction_timestamp, loan_disbursed_timestamp, device_type, active_status, services_used,
+    loan_sanction_timestamp, device_type, active_status, services_used,
     reason_for_withdrawal
 )
 VALUES (
-    '7d8c9d1e-4dff-40d3-9b7f-c7e0f693e3a1', '7d8c9d1e-4b1f-40d3-9b7f-c7e0f693e3a1', 'HDFC', 1, 'Agriculture Loan', 250000, '1', 'Mumbai', 'Maharashtra', 'BR001',
-    '400001', 'HDFC0001234', '27', '4001', '0000', '0000', '0000', 'M', 35, 'M', 4.5, 3, 'E', '2024-06-20 09:00:00',
-    '2024-06-20 12:00:00', '2024-06-20 15:00:00', 'M', 'Y', '{"Loan Application", "Loan Sanction", "Loan Disbursement"}',
-    '0000'
+    'L-101',
+    'H-82730',
+    'HDFC',
+    1,
+    'Agriculture Loan',
+    250000,
+    '1',
+    'Mumbai',
+    'Maharashtra',
+    'BR001',
+    '400001',
+    'HDFC0001234',
+    '27',
+    '4001',
+    '0000',
+    '0000',
+    '0000',
+    'M',
+    35,
+    'M',
+    500000,  -- Make sure this value corresponds to the annual_income
+    4,
+    'E',
+    '2024-06-20 09:00:00',
+    '2024-06-20 12:00:00',
+    'M',
+    'Y',
+    ARRAY['Loan Application', 'Loan Sanction', 'Loan Disbursement'],  -- Use ARRAY constructor for array type
+    'LOW CREDIT SCORE'
 );
 
 -- Create a function to update the 'updated_at' column to the current timestamp

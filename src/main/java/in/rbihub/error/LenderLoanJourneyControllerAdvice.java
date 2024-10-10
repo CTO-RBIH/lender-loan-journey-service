@@ -38,10 +38,10 @@ public class LenderLoanJourneyControllerAdvice {
 	ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException e) {
 		log.error("handleConstraintViolationException: {}", e.getMessage(), e);
 		ConstraintViolation<?> violation = e.getConstraintViolations().stream().findFirst().get();
-		String violationMsg = violation.getMessage();
-		String message = violationMsg.split("#")[1];
+		String errorMessage = violation.getMessage();
+		String message = errorMessage.split("#")[1];
 		String errorCode = message.substring(0, 4);
-		String errorMessage = message.substring(4).trim();
+		errorMessage = message.substring(4).trim();
 		LenderLoanJourneyException ex = new LenderLoanJourneyException(getPlatformErrorCode(errorCode), errorMessage);
 		ApiResponse apiResponse = ApiResponse.builder().txncode(MDC.get(TXNCODE)).platformException(ex).build();
 		String response = apiUtil.getPlatformApiResponse(apiResponse);
