@@ -27,7 +27,7 @@ public class LenderLoanJourneyController {
     @PostMapping(path = "/lender-loan-record/{version}/{lang}", produces = {MediaType.APPLICATION_JSON_VALUE})
     public String create(@PathVariable("version") String version, @PathVariable("lang") String lang,
                          @RequestHeader(value = "api-key", required = false) String apiKey,
-                         @RequestHeader(value = "client-id", required = true) String clientId,  // Extract client-id from header
+                         @RequestHeader("client-id") String clientId, // Extract client-id from header
                          @RequestHeader(value = "activityid", required = false) String correlationId,
                          @RequestHeader(value = "x-performance-test", required = false) Boolean doPerformanceTest,
                          @RequestBody(required = true) LenderLoanRecordBody body,
@@ -39,7 +39,6 @@ public class LenderLoanJourneyController {
         LenderLoanRecordApiRequest apiRequest = lenderLoanJourneyUtils.prepareLenderLoanRecordApiRequest(headers, body);
 
 
-        apiRequest.getBody().getData().setHashedId(apiRequest.getBody().getData().getLoanId(), clientId);  // Use hashed clientId from header
 
 
         return lenderLoanJourneyService.handleLenderLoanRecord(apiRequest);

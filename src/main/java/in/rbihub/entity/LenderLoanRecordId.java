@@ -30,7 +30,7 @@ public class LenderLoanRecordId implements Serializable {
     }
 
     // Hashing method using SHA-256
-    public String hash(String input) {
+    private String hash(String input) {
         if (input == null) {
             throw new IllegalArgumentException("Input to hash cannot be null");
         }
