@@ -8,6 +8,7 @@ import in.rbihub.entity.LenderLoanRecordId;
 import in.rbihub.error.LenderLoanJourneyException;
 import in.rbihub.repository.LenderLoanRecordRepository;
 import in.rbihub.request.LenderLoanRecordApiRequest;
+import in.rbihub.request.LenderLoanRecordUpdateRequest;
 import in.rbihub.utils.LenderLoanJourneyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -66,5 +68,33 @@ public class LenderLoanJourneyService {
         if (!names.contains(name)) {
             throw new LenderLoanJourneyException(errorCode);
         }
+    }
+
+
+    public void updateLoanWithdrawal(LenderLoanRecordUpdateRequest apiRequest) throws LenderLoanJourneyException {
+        String clientId = apiRequest.getClientId();
+
+        String loanId = apiRequest.getBody().getData().getLoanId();
+        String reasonForWithdrawal = apiRequest.getBody().getData().getReason_for_rejection();
+
+        if (clientId == null || loanId == null || reasonForWithdrawal == null) {
+            throw new LenderLoanJourneyException("Missing required fields: client_id, loan_id, or reason_for_withdrawal.");
+        }
+
+        // Fetch the existing loan record
+        LenderLoanRecordEntity loanRecord = lenderLoanRecordRepository.findByLoanIdAndClientId(loanId, clientId)
+                .orElseThrow(() -> new LenderLoanJourneyException("Loan record not found for client_id: " + clientId + " and loan_id: " + loanId));
+
+        // Only update the fields that are provided in the request
+        loanRecord.setReasonForWithdrawal(reasonForWithdrawal);
+
+        // Save the updated record (this acts as a PUT, but since we only updated one field, it mimics a PATCH)
+        lenderLoanRecordRepository.save(loanRecord);
+
+        JSONObject jsonData = new JSONObject();
+        jsonData.put("message", "Loan record processed successfully.");
+
+        // Return the default success response
+        return apiUtil.convertToPlatformResponse(apiRequest, jsonData);
     }
 }
