@@ -28,9 +28,9 @@ public class LenderLoanRecordEntity {
     // Use this for setting original clientId if needed
     @Setter
     @Id
-    @Column(name = "client_id", nullable = false)
-    @NotBlank(message = "{client_id.invalid}") // Error code for blank client ID
-    private String clientId;
+    @Column(name = "customer_id", nullable = false)
+    @NotBlank(message = "{customer_id.invalid}") // Error code for blank client ID
+    private String customerId;
 
     @NotBlank(message = "{lender_name.invalid}") // Error code for blank lender name
     private String lenderName;  // Bank name (Mandatory)
@@ -135,8 +135,8 @@ public class LenderLoanRecordEntity {
     private String reasonForWithdrawal = "0000"; // Default value
 
     // Ensure you have a way to set hashed IDs in the loanRecord entity
-    public void setHashedId(String loanId, String clientId) {
+    public void setHashedId(String loanId, String customerId) {
         this.loanId = loanId;  // Set the hashed loanId
-        this.clientId = clientId;  // Set the hashed clientId
+        this.customerId = customerId;  // Set the hashed clientId
     }
 }

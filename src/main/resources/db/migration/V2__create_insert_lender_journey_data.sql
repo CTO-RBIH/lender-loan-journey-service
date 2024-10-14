@@ -1,6 +1,6 @@
 CREATE TABLE lender_loan_record (
     loan_id VARCHAR(255) NOT NULL,
-    client_id VARCHAR(255) NOT NULL,
+    customer_id VARCHAR(255) NOT NULL,
     lender_name VARCHAR(255) NOT NULL,
     loan_type INT NOT NULL CHECK (loan_type BETWEEN 1 AND 10),
     loan_product_name VARCHAR(255),
@@ -30,7 +30,7 @@ CREATE TABLE lender_loan_record (
     reason_for_withdrawal VARCHAR(255) NOT NULL DEFAULT '0000',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    PRIMARY KEY (client_id, loan_id)
+    PRIMARY KEY (customer_id, loan_id)
 );
 
 CREATE OR REPLACE FUNCTION hash_sha256(input TEXT) RETURNS TEXT AS $$
@@ -45,7 +45,7 @@ $$ LANGUAGE plpgsql;
 
 -- Insert statement rearranged to match the new column order
 INSERT INTO lender_loan_record (
-    loan_id, client_id, lender_name, loan_type, loan_product_name, sanctioned_amount, loan_channel, district, state, branch_code,
+    loan_id, customer_id, lender_name, loan_type, loan_product_name, sanctioned_amount, loan_channel, district, state, branch_code,
     pincode, ifsc_code, state_code, district_code, sub_district_code, village_code, lgd_code, gender, age,
     marital_status, annual_income, educational_background, professional_background, application_start_timestamp,
     loan_sanction_timestamp, device_type, active_status, services_used,

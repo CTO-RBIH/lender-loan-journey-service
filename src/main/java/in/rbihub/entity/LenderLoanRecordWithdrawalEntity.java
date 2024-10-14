@@ -8,6 +8,9 @@ public class LenderLoanRecordWithdrawalEntity {
 
     @JsonProperty("loan_id")
     private String loanId;
-    @JsonProperty("reason_for_rejection")
-    private String reason_for_rejection;
+    @JsonProperty("withdrawal_reason")
+    private String withdrawalReason;
+
+    @JsonProperty("customer_id")
+    private String customerId;
 }

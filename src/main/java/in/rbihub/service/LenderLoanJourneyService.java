@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import static in.rbihub.utils.LenderLoanJourneyUtils.hash;
+
 
 @Slf4j
 @Service
@@ -43,10 +45,10 @@ public class LenderLoanJourneyService {
         LenderLoanRecordEntity loanRecord = apiRequest.getBody().getData();
 
         // Create a new LenderLoanRecordId instance with original values
-        LenderLoanRecordId recordId = new LenderLoanRecordId(loanRecord.getLoanId(), loanRecord.getClientId());
+        LenderLoanRecordId recordId = new LenderLoanRecordId(loanRecord.getLoanId(), loanRecord.getCustomerId());
 
         // Set the hashed IDs in the loanRecord entity
-        loanRecord.setHashedId(recordId.getLoanId(), recordId.getClientId());
+        loanRecord.setHashedId(recordId.getLoanId(), recordId.getCustomerId());
 
         // Save the loan record to the repository
         lenderLoanRecordRepository.save(loanRecord);
@@ -60,49 +62,43 @@ public class LenderLoanJourneyService {
     }
 
     public String updateLoanWithdrawal(LenderLoanRecordUpdateRequest apiRequest) throws LenderLoanJourneyException {
-        try {
-            // Extracting data from the API request
-            String clientId = apiRequest.getClientId();
-            String loanId = apiRequest.getBody().getData().getLoanId();
-            String reasonForWithdrawal = apiRequest.getBody().getData().getReason_for_rejection();
+        // Extracting data from the API request
+        String customerId = apiRequest.getBody().getData().getCustomerId();
+        String loanId = apiRequest.getBody().getData().getLoanId();
+        String reasonForWithdrawal = apiRequest.getBody().getData().getWithdrawalReason();
 
-            // Check if any required field is missing
-            if (clientId == null || loanId == null || reasonForWithdrawal == null) {
-                throw new LenderLoanJourneyException("Missing required fields: client_id, loan_id, or reason_for_withdrawal.");
-            }
-
-            // Manually hash the clientId and loanId
-            String hashedLoanId = LenderLoanRecordId.hash(loanId);
-            String hashedClientId = LenderLoanRecordId.hash(clientId);
-
-            log.info("Original loanId: {}, Original clientId: {}", loanId, clientId);
-            log.info("Hashed loanId: {}, Hashed clientId: {}", hashedLoanId, hashedClientId);
-
-            // Fetch the existing loan record using the hashed primary key combination
-            LenderLoanRecordEntity loanRecord = lenderLoanRecordRepository.findByLoanIdAndClientId(hashedLoanId, hashedClientId)
-                    .orElseThrow(() -> new LenderLoanJourneyException("Loan record not found for client_id: " + clientId + " and loan_id: " + loanId));
-
-            // Update the fields that need to be changed
-            loanRecord.setReasonForWithdrawal(reasonForWithdrawal);
-            loanRecord.setActiveStatus("N"); // Change active status to 'N' (Inactive)
-
-            // Save the updated loan record back to the repository
-            lenderLoanRecordRepository.save(loanRecord);
-
-            // Create response object
-            JSONObject jsonData = new JSONObject();
-            jsonData.put("message", "Loan record updated successfully.");
-
-            // Return success response as a string
-            return apiUtil.convertToPlatformResponse(apiRequest, jsonData);
-
-        } catch (LenderLoanJourneyException e) {
-            log.error("Error updating loan withdrawal: {}", e.getMessage());
-            throw e;  // Re-throwing the custom exception for further handling
-        } catch (Exception e) {
-            log.error("Unexpected error occurred while updating loan withdrawal.", e);
-            throw new LenderLoanJourneyException("An unexpected error occurred while processing the loan withdrawal update.", String.valueOf(e));
+        // Check for missing required fields using patch_parameters_null.invalid
+        if (customerId == null || customerId.isBlank() || loanId == null || loanId.isBlank() || reasonForWithdrawal == null || reasonForWithdrawal.isBlank()) {
+            throw new LenderLoanJourneyException(LenderLoanJourneyException.CustomErrorCodes.E225,
+                    "patch_parameters_null.invalid");
         }
+
+        // Manually hash the customerId and loanId
+        String hashedLoanId = hash(loanId);
+        String hashedCustomerId = hash(customerId);
+
+        // Fetch the existing loan record using the hashed primary key combination, use cust_loan_id_not_found.invalid if not found
+        LenderLoanRecordEntity loanRecord = lenderLoanRecordRepository.findByLoanIdAndCustomerId(hashedLoanId, hashedCustomerId)
+                .orElseThrow(() -> new LenderLoanJourneyException(LenderLoanJourneyException.CustomErrorCodes.E226,
+                        "cust_loan_id_not_found.invalid"));
+
+        // Update the fields that need to be changed
+        loanRecord.setReasonForWithdrawal(reasonForWithdrawal);
+        loanRecord.setActiveStatus("N"); // Change active status to 'N' (Inactive)
+
+        // Save the updated loan record back to the repository
+        lenderLoanRecordRepository.save(loanRecord);
+
+        // Create a valid JSON object to pass as data
+        JSONObject jsonData = new JSONObject();
+        jsonData.put("message", "Loan record updated successfully.");
+
+        // Return the default success response as a JSON object using apiUtil
+        return apiUtil.convertToPlatformResponse(apiRequest, jsonData);
     }
+
+
+
+
 
 }

@@ -10,5 +10,5 @@ import java.util.UUID;
 
 @Repository
 public interface LenderLoanRecordRepository extends JpaRepository<LenderLoanRecordEntity, LenderLoanRecordId> {
-    Optional<LenderLoanRecordEntity> findByLoanIdAndClientId(String loanId, String clientId);
+    Optional<LenderLoanRecordEntity> findByLoanIdAndCustomerId(String loanId, String customerId);
 }
