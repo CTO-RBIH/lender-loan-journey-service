@@ -38,12 +38,15 @@ public class LenderLoanJourneyController {
         Map<String, String> headers = apiUtil.collectHeaders(request);
         headers.put("lang", lang);
         headers.put("version", version);
+        headers.put("client-id", clientId);
         log.info("create. , headers: {}", headers);
         LenderLoanRecordApiRequest apiRequest = lenderLoanJourneyUtils.prepareLenderLoanRecordApiRequest(headers, body);
 
-        String hashedClientId = new LenderLoanRecordId().hash(clientId);
+        String hashedClientId = clientId;
+        log.info("Hashed client-id: {}", hashedClientId);
 
-        apiRequest.getBody().getData().setHashedId(apiRequest.getBody().getData().getLoanId(), hashedClientId);  // Use hashed clientId from header
+
+        apiRequest.getBody().getData().setHashedId(apiRequest.getBody().getData().getLoanId(), hashedClientId);
 
 
         return lenderLoanJourneyService.handleLenderLoanRecord(apiRequest);
@@ -66,6 +69,6 @@ public class LenderLoanJourneyController {
         LenderLoanRecordUpdateRequest apiRequest = lenderLoanJourneyUtils.getLenderLoanRecordUpdateRequest(headers, patchBody);
 
         // Pass the request to the service layer to handle the update
-        return lenderLoanJourneyService.handleLenderLoanRecordWithdrawal(apiRequest);
+        return lenderLoanJourneyService.updateLoanWithdrawal(apiRequest);
     }
 }
