@@ -38,9 +38,8 @@ public class LenderLoanJourneyController {
         log.info("create. , headers: {}", headers);
         LenderLoanRecordApiRequest apiRequest = lenderLoanJourneyUtils.prepareLenderLoanRecordApiRequest(headers, body);
 
-        String hashedClientId = new LenderLoanRecordId().hash(clientId);
 
-        apiRequest.getBody().getData().setHashedId(apiRequest.getBody().getData().getLoanId(), hashedClientId);  // Use hashed clientId from header
+        apiRequest.getBody().getData().setHashedId(apiRequest.getBody().getData().getLoanId(), clientId);  // Use hashed clientId from header
 
 
         return lenderLoanJourneyService.handleLenderLoanRecord(apiRequest);
