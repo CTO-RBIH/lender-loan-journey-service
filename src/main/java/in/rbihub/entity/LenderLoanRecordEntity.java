@@ -126,7 +126,7 @@ public class LenderLoanRecordEntity {
     private String activeStatus = "Y";
 
     @Column(name = "reason_for_withdrawal", nullable = false)
-    private String reasonForWithdrawal = "0000";
+    private Integer reasonForWithdrawal = 0000;
 
     // Setter method for rounding annual income in lakhs, rounded to the nearest thousand
     public void setAnnualIncome(Double annualIncome) {

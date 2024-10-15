@@ -68,7 +68,7 @@ public class LenderLoanJourneyService {
     public String updateLoanWithdrawal(LenderLoanRecordUpdateRequest apiRequest) throws LenderLoanJourneyException {
         // Extracting data from the API request
         String loanId = apiRequest.getBody().getData().getLoanId();
-        String reasonForWithdrawal = apiRequest.getBody().getData().getWithdrawalReason();
+        Integer reasonForWithdrawal = apiRequest.getBody().getData().getWithdrawalReason();
         String concatenatedId = getString(apiRequest, loanId, reasonForWithdrawal);
         String hashedLoanId = hash(concatenatedId);  // Hash the concatenated loanId and clientId
 
@@ -91,13 +91,17 @@ public class LenderLoanJourneyService {
     }
 
     @NotNull
-    private static String getString(LenderLoanRecordUpdateRequest apiRequest, String loanId, String reasonForWithdrawal) throws LenderLoanJourneyException {
+    private static String getString(LenderLoanRecordUpdateRequest apiRequest, String loanId, Integer reasonForWithdrawal) throws LenderLoanJourneyException {
         String clientIdFromHeader = apiRequest.getClientId();
 
         // Check for missing required fields using patch_parameters_null.invalid
-        if (clientIdFromHeader == null || clientIdFromHeader.isBlank() || loanId == null || loanId.isBlank() || reasonForWithdrawal == null || reasonForWithdrawal.isBlank()) {
+        if (loanId == null || loanId.isBlank()) {
             throw new LenderLoanJourneyException(LenderLoanJourneyException.CustomErrorCodes.E225,
                     "patch_parameters_null.invalid");
+        }
+        if (reasonForWithdrawal == null || reasonForWithdrawal == 0 || reasonForWithdrawal > 5 || reasonForWithdrawal < 1) {
+            throw new LenderLoanJourneyException(LenderLoanJourneyException.CustomErrorCodes.E227,
+                    "withdrawal_1_5.invalid");
         }
 
         // Concatenate loanId and clientId and then hash the result
