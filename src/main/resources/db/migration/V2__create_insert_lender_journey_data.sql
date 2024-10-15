@@ -23,7 +23,7 @@ CREATE TABLE lender_loan_record (
     device_type CHAR(1) NOT NULL CHECK (device_type IN ('M', 'D')),
     active_status CHAR(1) NOT NULL DEFAULT 'Y',
     services_used TEXT[],  -- Ensure this is an array type
-    reason_for_withdrawal INT NOT NULL DEFAULT 0000 CHECK (edu_background BETWEEN 0 AND 6),
+    reason_for_withdrawal VARCHAR(10) NOT NULL DEFAULT '0000',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PRIMARY KEY (loan_id)

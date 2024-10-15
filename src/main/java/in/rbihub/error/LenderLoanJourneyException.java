@@ -64,6 +64,12 @@ public class LenderLoanJourneyException extends ApiParamException implements Pla
 		E224,
 		E225,
 		E226,
-		E227
+		E227,
+		E228,
+		E229,
+		E230,
+		E231,
+		E232,
+		E233
 	}
 }

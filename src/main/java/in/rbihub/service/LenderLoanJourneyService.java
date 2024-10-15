@@ -68,7 +68,7 @@ public class LenderLoanJourneyService {
     public String updateLoanWithdrawal(LenderLoanRecordUpdateRequest apiRequest) throws LenderLoanJourneyException {
         // Extracting data from the API request
         String loanId = apiRequest.getBody().getData().getLoanId();
-        Integer reasonForWithdrawal = apiRequest.getBody().getData().getWithdrawalReason();
+        String reasonForWithdrawal = String.valueOf(apiRequest.getBody().getData().getWithdrawalReason());
         String concatenatedId = getString(apiRequest, loanId, reasonForWithdrawal);
         String hashedLoanId = hash(concatenatedId);  // Hash the concatenated loanId and clientId
 
@@ -91,7 +91,7 @@ public class LenderLoanJourneyService {
     }
 
     @NotNull
-    private static String getString(LenderLoanRecordUpdateRequest apiRequest, String loanId, Integer reasonForWithdrawal) throws LenderLoanJourneyException {
+    private static String getString(LenderLoanRecordUpdateRequest apiRequest, String loanId, String reasonForWithdrawal) throws LenderLoanJourneyException {
         String clientIdFromHeader = apiRequest.getClientId();
 
         // Check for missing required fields using patch_parameters_null.invalid
@@ -99,9 +99,20 @@ public class LenderLoanJourneyService {
             throw new LenderLoanJourneyException(LenderLoanJourneyException.CustomErrorCodes.E225,
                     "patch_parameters_null.invalid");
         }
-        if (reasonForWithdrawal == null || reasonForWithdrawal == 0 || reasonForWithdrawal > 5 || reasonForWithdrawal < 1) {
-            throw new LenderLoanJourneyException(LenderLoanJourneyException.CustomErrorCodes.E227,
-                    "withdrawal_1_5.invalid");
+
+        try {
+            int withdrawalReasonInt = Integer.parseInt(reasonForWithdrawal);
+
+            // Validate the parsed integer is between 1 and 5
+            if (withdrawalReasonInt < 1 || withdrawalReasonInt > 5) {
+                throw new LenderLoanJourneyException(LenderLoanJourneyException.CustomErrorCodes.E227,
+                        "withdrawal_1_5.invalid");
+            }
+
+        } catch (NumberFormatException e) {
+            // If the string is not a valid integer, throw the custom exception
+            throw new LenderLoanJourneyException(LenderLoanJourneyException.CustomErrorCodes.E228,
+                    "withdrawal_1_5_null.invalid");
         }
 
         // Concatenate loanId and clientId and then hash the result

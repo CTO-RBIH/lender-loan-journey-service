@@ -3,10 +3,8 @@ package in.rbihub.controller;
 import in.rbihub.common.utils.ApiUtil;
 import in.rbihub.entity.LenderLoanRecordId;
 import in.rbihub.error.LenderLoanJourneyException;
-import in.rbihub.request.LenderLoanRecordApiRequest;
-import in.rbihub.request.LenderLoanRecordBody;
-import in.rbihub.request.LenderLoanRecordPatchBody;
-import in.rbihub.request.LenderLoanRecordUpdateRequest;
+import in.rbihub.request.*;
+import in.rbihub.service.DisbursedLoanService;
 import in.rbihub.service.LenderLoanJourneyService;
 import in.rbihub.utils.LenderLoanJourneyUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +18,8 @@ import java.util.Map;
 @Slf4j
 @RestController
 public class LenderLoanJourneyController {
+    @Autowired
+    DisbursedLoanService disbursedLoanService;
     @Autowired
     LenderLoanJourneyService lenderLoanJourneyService;
     @Autowired
@@ -66,4 +66,28 @@ public class LenderLoanJourneyController {
         // Pass the request to the service layer to handle the update
         return lenderLoanJourneyService.updateLoanWithdrawal(apiRequest);
     }
+
+    @PostMapping(path = "/disburse-loan-record/{version}/{lang}", produces = {MediaType.APPLICATION_JSON_VALUE})
+    public String createDisbursedLoanRecord(@PathVariable("version") String version,
+                                            @PathVariable("lang") String lang,
+                                            @RequestHeader(value = "api-key", required = false) String apiKey,
+                                            @RequestHeader(value = "client-id", required = true) String clientId,
+                                            @RequestHeader(value = "activityid", required = false) String correlationId,
+                                            @RequestHeader(value = "x-performance-test", required = false) Boolean doPerformanceTest,
+                                            @RequestBody(required = true) DisbursedLoanBody body,
+                                            HttpServletRequest request) throws LenderLoanJourneyException {
+        // Collect headers
+        Map<String, String> headers = apiUtil.collectHeaders(request);
+        headers.put("lang", lang);
+        headers.put("version", version);
+        headers.put("client-id", clientId);
+        log.info("createDisbursedLoanRecord, headers: {}", headers);
+
+        // Prepare the API request using the same pattern as LenderLoanRecord
+        DisbursedLoanRequest apiRequest = lenderLoanJourneyUtils.prepareDisbursedLoanRecordApiRequest(headers, body);
+
+        // Validate and process the request in the service layer
+        return disbursedLoanService.handleDisbursedLoanRecord(apiRequest);
+    }
+
 }

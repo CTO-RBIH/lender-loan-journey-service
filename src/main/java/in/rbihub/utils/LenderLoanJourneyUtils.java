@@ -1,10 +1,7 @@
 package in.rbihub.utils;
 
 import in.rbihub.common.utils.ApiUtil;
-import in.rbihub.request.LenderLoanRecordApiRequest;
-import in.rbihub.request.LenderLoanRecordBody;
-import in.rbihub.request.LenderLoanRecordPatchBody;
-import in.rbihub.request.LenderLoanRecordUpdateRequest;
+import in.rbihub.request.*;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -62,6 +59,23 @@ public class LenderLoanJourneyUtils {
 
 		apiRequest.setBody(body);
 
+		return apiRequest;
+	}
+
+	// Prepare Disbursed Loan Record API Request (New method for disbursed loan)
+	public DisbursedLoanRequest prepareDisbursedLoanRecordApiRequest(Map<String, String> headers, DisbursedLoanBody body) {
+		DisbursedLoanRequest apiRequest = new DisbursedLoanRequest();
+		apiUtil.prepareRequest(headers, apiRequest);
+		if (Objects.nonNull(body.getMeta())) {
+			apiRequest.setTxncode(body.getMeta().txncode());
+			apiRequest.setTimestamp(body.getMeta().ts());
+			apiRequest.setVersion(body.getMeta().ver());
+			MDC.put(TXNCODE, body.getMeta().txncode());
+			MDC.put(TIMESTAMP, body.getMeta().ts());
+		}
+
+		apiRequest.setBody(body);
+		apiRequest.getBody().getData().setCreatedAt(Timestamp.from(Instant.now()));
 		return apiRequest;
 	}
 
