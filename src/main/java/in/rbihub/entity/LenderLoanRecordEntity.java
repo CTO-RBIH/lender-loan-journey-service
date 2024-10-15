@@ -1,6 +1,7 @@
 package in.rbihub.entity;
 
 import in.rbihub.validation.LoanValidation; // Import the custom annotation
+import in.rbihub.validation.ValidAgeFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -64,9 +65,10 @@ public class LenderLoanRecordEntity {
     private String productName;  // Product Name (Optional)
 
     @NotNull(message = "{age.invalid}") // Error code for null age
+    @ValidAgeFormat
     @Min(value = 18, message = "{age.invalid}") // Error code for minimum age
     @Max(value = 100, message = "{age.invalid}") // Error code for maximum age
-    private BigDecimal age; // Age (Mandatory)
+    private String age; // Age (Mandatory)
 
     @NotBlank(message = "{loan_channel.invalid}") // Error code for blank loan channel
     private String loanChannel;  // Loan Channel (Mandatory)

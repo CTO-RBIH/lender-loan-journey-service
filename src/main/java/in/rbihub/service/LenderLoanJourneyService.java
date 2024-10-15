@@ -40,10 +40,6 @@ public class LenderLoanJourneyService {
 
         // Extract clientId from headers
         String clientIdFromHeader = apiRequest.getClientId();
-        log.info("clientIdFromHeader: {}", clientIdFromHeader);
-        if (clientIdFromHeader == null || clientIdFromHeader.isBlank()) {
-            throw new LenderLoanJourneyException("cust_loan_id_not_found.invalid");
-        }
 
         // Validate the request body and the request itself
         apiValidator.validate(apiRequest.getBody());
@@ -76,11 +72,8 @@ public class LenderLoanJourneyService {
         String concatenatedId = getString(apiRequest, loanId, reasonForWithdrawal);
         String hashedLoanId = hash(concatenatedId);  // Hash the concatenated loanId and clientId
 
-        // Fetch the existing loan record using the hashed primary key combination, use cust_loan_id_not_found.invalid if not found
-        // Fetch the existing loan record using the hashed primary key combination, use cust_loan_id_not_found.invalid if not found
         LenderLoanRecordEntity loanRecord = lenderLoanRecordRepository.findByLoanId(hashedLoanId)
-                .orElseThrow(() -> new LenderLoanJourneyException("cust_loan_id_not_found.invalid"));
-
+                .orElseThrow(() -> new LenderLoanJourneyException(LenderLoanJourneyException.CustomErrorCodes.E226)); // Custom error code handled via message.properties
 
         // Update the fields that need to be changed
         loanRecord.setReasonForWithdrawal(reasonForWithdrawal);
