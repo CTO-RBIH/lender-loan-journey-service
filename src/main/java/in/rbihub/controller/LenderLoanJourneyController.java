@@ -30,7 +30,7 @@ public class LenderLoanJourneyController {
     @PostMapping(path = "/lender-loan-record/{version}/{lang}", produces = {MediaType.APPLICATION_JSON_VALUE})
     public String create(@PathVariable("version") String version, @PathVariable("lang") String lang,
                          @RequestHeader(value = "api-key", required = false) String apiKey,
-                         @RequestHeader("client-id") String clientId, // Extract client-id from header
+                         @RequestHeader(value = "client-id", required = true) String clientId,  // Extract client-id from header
                          @RequestHeader(value = "activityid", required = false) String correlationId,
                          @RequestHeader(value = "x-performance-test", required = false) Boolean doPerformanceTest,
                          @RequestBody(required = true) LenderLoanRecordBody body,
@@ -38,6 +38,7 @@ public class LenderLoanJourneyController {
         Map<String, String> headers = apiUtil.collectHeaders(request);
         headers.put("lang", lang);
         headers.put("version", version);
+        headers.put("client-id", clientId);
         log.info("create. , headers: {}", headers);
         LenderLoanRecordApiRequest apiRequest = lenderLoanJourneyUtils.prepareLenderLoanRecordApiRequest(headers, body);
 
@@ -46,16 +47,17 @@ public class LenderLoanJourneyController {
         return lenderLoanJourneyService.handleLenderLoanRecord(apiRequest);
     }
 
-    @PatchMapping(path = "/lender-loan-record/{version}/{lang}", produces = {MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(path = "/withdraw-loan-record/{version}/{lang}", produces = {MediaType.APPLICATION_JSON_VALUE})
     public String updateLenderLoanRecord(@PathVariable("version") String version,
                                          @PathVariable("lang") String lang,
-                                         @RequestHeader("client-id") String clientId,  // Extract client-id from header
+                                         @RequestHeader(value = "client-id", required = true) String clientId,  // Extract client-id from header
                                          @RequestBody LenderLoanRecordPatchBody patchBody,  // Request body containing fields to update
                                          HttpServletRequest request) throws LenderLoanJourneyException {
         // Collect headers
         Map<String, String> headers = apiUtil.collectHeaders(request);
         headers.put("lang", lang);
         headers.put("version", version);
+        headers.put("client-id", clientId);
         log.info("updateLenderLoanRecord, headers: {}", headers);
 
         // Hash the clientId

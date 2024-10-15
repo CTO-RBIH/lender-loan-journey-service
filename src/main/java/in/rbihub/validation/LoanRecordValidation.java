@@ -11,11 +11,11 @@ public class LoanRecordValidation implements ConstraintValidator<LoanValidation,
         boolean isValid = true; // Track overall validity
 
         // Validate timestamps
-        if (entity.getApplicationStartTimestamp() == null || entity.getLoanSanctionTimestamp() == null) {
+        if (entity.getJourneyStartTime() == null || entity.getLoanSanctionTime() == null) {
             return true; // If either timestamp is null, we won't validate.
         }
 
-        if (!entity.getApplicationStartTimestamp().before(entity.getLoanSanctionTimestamp())) {
+        if (!entity.getJourneyStartTime().before(entity.getLoanSanctionTime())) {
             context.buildConstraintViolationWithTemplate("{loan_validation.invalid}")
                     .addPropertyNode("applicationStartTimestamp")
                     .addConstraintViolation();

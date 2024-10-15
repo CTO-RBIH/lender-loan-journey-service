@@ -11,6 +11,4 @@ public class LenderLoanRecordWithdrawalEntity {
     @JsonProperty("withdrawal_reason")
     private String withdrawalReason;
 
-    @JsonProperty("customer_id")
-    private String customerId;
 }

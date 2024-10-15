@@ -11,6 +11,7 @@ import in.rbihub.request.LenderLoanRecordApiRequest;
 import in.rbihub.request.LenderLoanRecordUpdateRequest;
 import in.rbihub.utils.LenderLoanJourneyUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,13 @@ public class LenderLoanJourneyService {
 
         log.info("Processing lender loan record: {}", apiRequest);
 
+        // Extract clientId from headers
+        String clientIdFromHeader = apiRequest.getClientId();
+        log.info("clientIdFromHeader: {}", clientIdFromHeader);
+        if (clientIdFromHeader == null || clientIdFromHeader.isBlank()) {
+            throw new LenderLoanJourneyException("cust_loan_id_not_found.invalid");
+        }
+
         // Validate the request body and the request itself
         apiValidator.validate(apiRequest.getBody());
         apiValidator.validate(apiRequest);
@@ -44,11 +52,11 @@ public class LenderLoanJourneyService {
         // Retrieve the loan record from the request
         LenderLoanRecordEntity loanRecord = apiRequest.getBody().getData();
 
-        // Create a new LenderLoanRecordId instance with original values
-        LenderLoanRecordId recordId = new LenderLoanRecordId(loanRecord.getLoanId(), loanRecord.getCustomerId());
+        // Concatenate loanId and clientId, hash it and set it in loanRecord
+        loanRecord.setHashedId(loanRecord.getLoanId(), clientIdFromHeader);
 
-        // Set the hashed IDs in the loanRecord entity
-        loanRecord.setHashedId(recordId.getLoanId(), recordId.getCustomerId());
+        // Round and set the annual income before saving
+        loanRecord.setAnnualIncome(loanRecord.getAnnualIncome());  // Rounding will be done inside setAnnualIncome
 
         // Save the loan record to the repository
         lenderLoanRecordRepository.save(loanRecord);
@@ -63,24 +71,16 @@ public class LenderLoanJourneyService {
 
     public String updateLoanWithdrawal(LenderLoanRecordUpdateRequest apiRequest) throws LenderLoanJourneyException {
         // Extracting data from the API request
-        String customerId = apiRequest.getBody().getData().getCustomerId();
         String loanId = apiRequest.getBody().getData().getLoanId();
         String reasonForWithdrawal = apiRequest.getBody().getData().getWithdrawalReason();
-
-        // Check for missing required fields using patch_parameters_null.invalid
-        if (customerId == null || customerId.isBlank() || loanId == null || loanId.isBlank() || reasonForWithdrawal == null || reasonForWithdrawal.isBlank()) {
-            throw new LenderLoanJourneyException(LenderLoanJourneyException.CustomErrorCodes.E225,
-                    "patch_parameters_null.invalid");
-        }
-
-        // Manually hash the customerId and loanId
-        String hashedLoanId = hash(loanId);
-        String hashedCustomerId = hash(customerId);
+        String concatenatedId = getString(apiRequest, loanId, reasonForWithdrawal);
+        String hashedLoanId = hash(concatenatedId);  // Hash the concatenated loanId and clientId
 
         // Fetch the existing loan record using the hashed primary key combination, use cust_loan_id_not_found.invalid if not found
-        LenderLoanRecordEntity loanRecord = lenderLoanRecordRepository.findByLoanIdAndCustomerId(hashedLoanId, hashedCustomerId)
-                .orElseThrow(() -> new LenderLoanJourneyException(LenderLoanJourneyException.CustomErrorCodes.E226,
-                        "cust_loan_id_not_found.invalid"));
+        // Fetch the existing loan record using the hashed primary key combination, use cust_loan_id_not_found.invalid if not found
+        LenderLoanRecordEntity loanRecord = lenderLoanRecordRepository.findByLoanId(hashedLoanId)
+                .orElseThrow(() -> new LenderLoanJourneyException("cust_loan_id_not_found.invalid"));
+
 
         // Update the fields that need to be changed
         loanRecord.setReasonForWithdrawal(reasonForWithdrawal);
@@ -97,8 +97,19 @@ public class LenderLoanJourneyService {
         return apiUtil.convertToPlatformResponse(apiRequest, jsonData);
     }
 
+    @NotNull
+    private static String getString(LenderLoanRecordUpdateRequest apiRequest, String loanId, String reasonForWithdrawal) throws LenderLoanJourneyException {
+        String clientIdFromHeader = apiRequest.getClientId();
 
+        // Check for missing required fields using patch_parameters_null.invalid
+        if (clientIdFromHeader == null || clientIdFromHeader.isBlank() || loanId == null || loanId.isBlank() || reasonForWithdrawal == null || reasonForWithdrawal.isBlank()) {
+            throw new LenderLoanJourneyException(LenderLoanJourneyException.CustomErrorCodes.E225,
+                    "patch_parameters_null.invalid");
+        }
 
+        // Concatenate loanId and clientId and then hash the result
+        return loanId + "." + clientIdFromHeader;
+    }
 
 
 }
