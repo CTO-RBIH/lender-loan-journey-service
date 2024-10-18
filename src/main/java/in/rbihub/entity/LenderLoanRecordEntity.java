@@ -1,5 +1,7 @@
 package in.rbihub.entity;
 
+import in.rbihub.enums.LoanChannel;
+import in.rbihub.enums.LoanType;
 import in.rbihub.validation.LoanValidation; // Import the custom annotation
 import in.rbihub.validation.ValidAgeFormat;
 import in.rbihub.validation.ValidServicesUsed;
@@ -33,7 +35,6 @@ public class LenderLoanRecordEntity {
     @NotBlank(message = "{lender_name.invalid}") // Error code for blank lender name
     private String lenderName;  // Bank name (Mandatory)
 
-    @NotNull(message = "{loan_type.invalid}") // Error code for null loan type
     @Min(value = 1, message = "{loan_type.invalid}") // Error code for minimum loan type
     @Max(value = 10, message = "{loan_type.invalid}") // Error code for maximum loan type
     private Integer loanType;  // Loan type (Mandatory, numeric format between 1-10)
@@ -65,14 +66,14 @@ public class LenderLoanRecordEntity {
     @Column(name = "product_name", nullable = true)
     private String productName;  // Product Name (Optional)
 
-    @NotNull(message = "{age.invalid}") // Error code for null age
+    @NotNull(message = "{age.invalid}")
     @ValidAgeFormat
-    @Min(value = 18, message = "{age.invalid}") // Error code for minimum age
-    @Max(value = 100, message = "{age.invalid}") // Error code for maximum age
-    private String age; // Age (Mandatory)
+    private String age; // Keep only the custom annotation for validation
 
-    @NotBlank(message = "{loan_channel.invalid}") // Error code for blank loan channel
-    private String loanChannel;  // Loan Channel (Mandatory)
+    @NotBlank(message = "{loan_channel.invalid}")  // Ensure the value is not blank
+    @Pattern(regexp = "^[1-3]$", message = "{loan_channel.invalid}")  // Only allows '1', '2', or '3'
+    private String loanChannel;
+
 
     @NotBlank(message = "{marital_status.invalid}") // Error code for blank marital status
     @Pattern(regexp = "S|M|D|W", message = "{marital_status.invalid}") // Error code for marital status validation
@@ -117,6 +118,12 @@ public class LenderLoanRecordEntity {
     @Column(name = "services_used", nullable = false)
     private String[] servicesUsed;  // Array of strings for services used (Mandatory)
 
+
+    @Embedded
+    @AttributeOverride(name = "latitude", column = @Column(name = "geo_latitude"))
+    @AttributeOverride(name = "longitude", column = @Column(name = "geo_longitude"))
+    private GeoLocation geoLocation;
+
     @Column(name = "updated_at", nullable = false)
     @org.hibernate.annotations.UpdateTimestamp
     private Timestamp updatedAt;
@@ -146,5 +153,7 @@ public class LenderLoanRecordEntity {
         String combinedId = loanId + "." + clientId;  // Concatenate loanId and clientId with a dot
         this.loanId = hash(combinedId);  // Hash the concatenated string
     }
+
+
 
 }

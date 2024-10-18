@@ -10,3 +10,7 @@ target
 *.dylib
 src/main/resources/application-*
 select * from lender_loan_record;.pgsql
+LoanRecordSave.py
+LoanRecordPopulator.py
+lender_loan_record.csv
+venv    

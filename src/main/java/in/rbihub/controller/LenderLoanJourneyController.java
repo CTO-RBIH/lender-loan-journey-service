@@ -87,7 +87,7 @@ public class LenderLoanJourneyController {
         DisbursedLoanRequest apiRequest = lenderLoanJourneyUtils.prepareDisbursedLoanRecordApiRequest(headers, body);
 
         // Validate and process the request in the service layer
-        return disbursedLoanService.handleDisbursedLoanRecord(apiRequest);
+        return disbursedLoanService.handleDisbursedLoanRecord(apiRequest, clientId);
     }
 
 }

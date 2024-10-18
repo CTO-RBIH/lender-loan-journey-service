@@ -1,5 +1,6 @@
+-- Create the lender_loan_record table with latitude and longitude columns
 CREATE TABLE lender_loan_record (
-    loan_id VARCHAR(255) NOT NULL,
+    loan_id VARCHAR(255) NOT NULL,  -- Using CHAR(255) for loan_id
     lender_name VARCHAR(255) NOT NULL,
     loan_type INT NOT NULL CHECK (loan_type BETWEEN 1 AND 10),
     product_name VARCHAR(255),
@@ -13,7 +14,7 @@ CREATE TABLE lender_loan_record (
     sub_district_code VARCHAR(10) NOT NULL DEFAULT '0000',
     village_lgd_code VARCHAR(10) NOT NULL DEFAULT '0000',
     gender CHAR(1) NOT NULL CHECK (gender IN ('M', 'F', 'T')),
-    age VARCHAR(5) NOT NULL,
+    age VARCHAR(5) NOT NULL,  -- Age in years and months format (e.g., 28,6)
     marital_status CHAR(1) NOT NULL CHECK (marital_status IN ('S', 'M', 'D', 'W')),
     annual_income NUMERIC NOT NULL CHECK (annual_income >= 0),
     edu_background INT NOT NULL CHECK (edu_background BETWEEN 1 AND 6),
@@ -22,13 +23,16 @@ CREATE TABLE lender_loan_record (
     loan_sanction_time TIMESTAMP NOT NULL,
     device_type CHAR(1) NOT NULL CHECK (device_type IN ('M', 'D')),
     active_status CHAR(1) NOT NULL DEFAULT 'Y',
-    services_used TEXT[],  -- Ensure this is an array type
+    services_used TEXT[],  -- Array type to store services used
     reason_for_withdrawal VARCHAR(10) NOT NULL DEFAULT '0000',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    PRIMARY KEY (loan_id)
+    geo_latitude NUMERIC,  -- Latitude as a separate numeric column
+    geo_longitude NUMERIC, -- Longitude as a separate numeric column
+    PRIMARY KEY (loan_id)  -- Composite primary key: loan_id and lender_name
 );
 
+-- Function to generate a SHA-256 hash
 CREATE OR REPLACE FUNCTION hash_sha256(input TEXT) RETURNS TEXT AS $$
 DECLARE
     hashed_output TEXT;
@@ -38,18 +42,16 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
--- Insert statement rearranged to match the new column order
+-- Insert a sample record using the hash function for loan_id
 INSERT INTO lender_loan_record (
     loan_id, lender_name, loan_type, product_name, sanctioned_amount, loan_channel, branch_code,
     pincode, ifsc_code, state_code, district_code, sub_district_code, village_lgd_code, gender, age,
     marital_status, annual_income, edu_background, professional_background, journey_start_time,
-    loan_sanction_time, device_type, active_status, services_used,
-    reason_for_withdrawal
+    loan_sanction_time, device_type, active_status, services_used, reason_for_withdrawal,
+    geo_latitude, geo_longitude
 )
-VALUES
-(
-    hash_sha256('L-102'),          -- Hash the loan_id
+VALUES (
+    hash_sha256('L-102'),         -- Hash the loan_id
     'ICICI Bank',
     2,
     'Home Loan',
@@ -63,7 +65,7 @@ VALUES
     '0000',
     '0000',
     'F',
-    28.0,
+    '28,6',
     'M',
     600000,
     3,
@@ -72,10 +74,13 @@ VALUES
     '2024-07-15 14:00:00',
     'D',
     'Y',
-    ARRAY['Home Application', 'Home Sanction'],
-    '0000'
+    ARRAY['lrsmasterdata', 'ibdic/invoice-registration-without-entity-code'],
+    '0000',
+    12.9715987,   -- Latitude (Bangalore example)
+    77.594566     -- Longitude (Bangalore example)
 );
--- Create a function to update the 'updated_at' column to the current timestamp
+
+-- Function to update 'updated_at' column to the current timestamp
 CREATE OR REPLACE FUNCTION update_modified_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -84,9 +89,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Create a trigger that invokes the above function before any update on 'lender_loan_record'
+-- Create a trigger to update the 'updated_at' column before any update
 CREATE TRIGGER update_lender_loan_record_modtime
 BEFORE UPDATE ON lender_loan_record
 FOR EACH ROW
 EXECUTE FUNCTION update_modified_column();
-

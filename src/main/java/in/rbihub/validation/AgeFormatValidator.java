@@ -17,14 +17,14 @@ public class AgeFormatValidator implements ConstraintValidator<ValidAgeFormat, S
         }
 
         // Validate the format using a regular expression
-        String regex = "^(\\d{1,3})\\.(\\d{1,2})$"; // Matches "xx.xx" format
+        String regex = "^(\\d{1,3}),(\\d{1,2})$"; // Change from "." to ","
         if (!value.matches(regex)) {
             return false;
         }
 
         try {
             // Split into integer and decimal parts
-            String[] parts = value.split("\\.");
+            String[] parts = value.split(","); // Change delimiter from "." to ","
             int integerPart = Integer.parseInt(parts[0]);
             int decimalPart = Integer.parseInt(parts[1]);
 

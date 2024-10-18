@@ -29,9 +29,8 @@ public class DisbursedLoanEntity {
     @NotBlank(message = "{loan_id.invalid}") // Error for blank loan ID
     private String loanId;
 
-    // Sanctioned Amount (Optional)
-    @Column(name = "sanctioned_amount", nullable = true)
-    @DecimalMin(value = "0.0", inclusive = false, message = "{sanctioned_amount.invalid}") // Sanctioned amount cannot be negative
+    // Sanctioned Amount (fetched from lender_loan_record)
+    @Column(name = "sanctioned_amount", nullable = false)
     private BigDecimal sanctionedAmount;
 
     // Total Tranches (Mandatory)
